@@ -188,6 +188,14 @@ export const Header = ({ cartCount, onCartClick, currentPage = 'home' }: HeaderP
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem 
+                        onClick={() => navigate('/dashboard')}
+                        className="cursor-pointer"
+                      >
+                        <User className="h-4 w-4 mr-2" />
+                        Dashboard
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
                         onClick={handleSignOut}
                         className="text-rose-600 focus:text-rose-700 cursor-pointer"
                       >
@@ -269,15 +277,26 @@ export const Header = ({ cartCount, onCartClick, currentPage = 'home' }: HeaderP
               )}
               
               {!loading && user && (
-                <button
-                  onClick={() => {
-                    handleSignOut();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="text-left px-4 py-2 rounded-lg transition-colors duration-300 text-rose-600 hover:bg-rose-50"
-                >
-                  Sign Out
-                </button>
+                <>
+                  <button
+                    onClick={() => {
+                      navigate('/dashboard');
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="text-left px-4 py-2 rounded-lg transition-colors duration-300 text-amber-800 hover:bg-amber-50 hover:text-rose-600"
+                  >
+                    Dashboard
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleSignOut();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="text-left px-4 py-2 rounded-lg transition-colors duration-300 text-rose-600 hover:bg-rose-50"
+                  >
+                    Sign Out
+                  </button>
+                </>
               )}
             </div>
           </nav>
