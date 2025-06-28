@@ -25,9 +25,7 @@ interface User {
   email: string;
   full_name: string | null;
   created_at: string;
-  user_roles?: {
-    role: string;
-  }[];
+  user_role?: string;
 }
 
 export const UsersManager = () => {
@@ -37,18 +35,31 @@ export const UsersManager = () => {
 
   const fetchUsers = async () => {
     try {
-      const { data, error } = await supabase
+      // First get all profiles
+      const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          user_roles (
-            role
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setUsers(data || []);
+      if (profilesError) throw profilesError;
+
+      // Then get user roles for each profile
+      const usersWithRoles = await Promise.all(
+        (profilesData || []).map(async (profile) => {
+          const { data: roleData, error: roleError } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', profile.id)
+            .single();
+
+          return {
+            ...profile,
+            user_role: roleError ? 'user' : roleData?.role || 'user'
+          };
+        })
+      );
+
+      setUsers(usersWithRoles);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({
@@ -95,10 +106,6 @@ export const UsersManager = () => {
     }
   };
 
-  const getUserRole = (user: User): string => {
-    return user.user_roles?.[0]?.role || 'user';
-  };
-
   if (loading) {
     return <div className="text-center py-8">Loading users...</div>;
   }
@@ -127,17 +134,17 @@ export const UsersManager = () => {
                 <TableCell>{user.email}</TableCell>
                 <TableCell>
                   <div className="flex items-center space-x-2">
-                    {getUserRole(user) === 'admin' ? (
+                    {user.user_role === 'admin' ? (
                       <ShieldCheck className="h-4 w-4 text-amber-600" />
                     ) : (
                       <Shield className="h-4 w-4 text-gray-400" />
                     )}
                     <span className={`px-2 py-1 rounded-full text-xs ${
-                      getUserRole(user) === 'admin' 
+                      user.user_role === 'admin' 
                         ? 'bg-amber-100 text-amber-800' 
                         : 'bg-gray-100 text-gray-800'
                     }`}>
-                      {getUserRole(user)}
+                      {user.user_role}
                     </span>
                   </div>
                 </TableCell>
@@ -146,7 +153,7 @@ export const UsersManager = () => {
                 </TableCell>
                 <TableCell>
                   <Select
-                    value={getUserRole(user)}
+                    value={user.user_role}
                     onValueChange={(value: 'admin' | 'user') => updateUserRole(user.id, value)}
                   >
                     <SelectTrigger className="w-24">

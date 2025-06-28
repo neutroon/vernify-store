@@ -28,7 +28,7 @@ interface Order {
   shipping_address: any;
   created_at: string;
   updated_at: string;
-  profiles?: {
+  user_profile?: {
     full_name: string | null;
     email: string;
   };
@@ -41,19 +41,31 @@ export const OrdersManager = () => {
 
   const fetchOrders = async () => {
     try {
-      const { data, error } = await supabase
+      // First get all orders
+      const { data: ordersData, error: ordersError } = await supabase
         .from('orders')
-        .select(`
-          *,
-          profiles:user_id (
-            full_name,
-            email
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setOrders(data || []);
+      if (ordersError) throw ordersError;
+
+      // Then get user profiles for each order
+      const ordersWithProfiles = await Promise.all(
+        (ordersData || []).map(async (order) => {
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('full_name, email')
+            .eq('id', order.user_id)
+            .single();
+
+          return {
+            ...order,
+            user_profile: profileError ? null : profileData
+          };
+        })
+      );
+
+      setOrders(ordersWithProfiles);
     } catch (error) {
       console.error('Error fetching orders:', error);
       toast({
@@ -140,10 +152,10 @@ export const OrdersManager = () => {
                 <TableCell>
                   <div>
                     <div className="font-medium">
-                      {order.profiles?.full_name || 'Unknown'}
+                      {order.user_profile?.full_name || 'Unknown'}
                     </div>
                     <div className="text-sm text-gray-500">
-                      {order.profiles?.email}
+                      {order.user_profile?.email || 'No email'}
                     </div>
                   </div>
                 </TableCell>
