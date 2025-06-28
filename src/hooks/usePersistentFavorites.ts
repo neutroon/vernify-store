@@ -42,13 +42,18 @@ export const usePersistentFavorites = () => {
 
       if (error) throw error;
 
-      const transformedFavorites: Product[] = (wishlistData || []).map(item => ({
-        id: parseInt(item.products.id),
+      const transformedFavorites: Product[] = (wishlistData || []).map((item, index) => ({
+        // Generate consistent numeric ID for frontend
+        id: Math.abs(item.products.id.split('-').join('').slice(0, 8).split('').reduce((a, b) => {
+          a = ((a << 5) - a) + b.charCodeAt(0);
+          return a & a;
+        }, 0)) || index + 1,
         name: item.products.name,
         price: parseFloat(item.products.price.toString()),
         image: item.products.image_url || '',
         description: item.products.description || '',
-        category: item.products.category
+        category: item.products.category,
+        originalId: item.products.id
       }));
 
       setFavorites(transformedFavorites);
@@ -77,13 +82,16 @@ export const usePersistentFavorites = () => {
     const isFavorite = favorites.some(fav => fav.id === product.id);
 
     try {
+      // Use originalId (UUID) for database operations
+      const productId = product.originalId || product.id.toString();
+
       if (isFavorite) {
         // Remove from favorites
         const { error } = await supabase
           .from('wishlist')
           .delete()
           .eq('user_id', user.id)
-          .eq('product_id', product.id.toString());
+          .eq('product_id', productId);
 
         if (error) throw error;
 
@@ -102,7 +110,7 @@ export const usePersistentFavorites = () => {
           .from('wishlist')
           .insert({
             user_id: user.id,
-            product_id: product.id.toString()
+            product_id: productId
           });
 
         if (error) throw error;

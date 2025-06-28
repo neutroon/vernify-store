@@ -43,14 +43,19 @@ export const usePersistentCart = () => {
 
       if (error) throw error;
 
-      const transformedItems: CartItem[] = (cartData || []).map(item => ({
-        id: parseInt(item.products.id),
+      const transformedItems: CartItem[] = (cartData || []).map((item, index) => ({
+        // Generate consistent numeric ID for frontend
+        id: Math.abs(item.products.id.split('-').join('').slice(0, 8).split('').reduce((a, b) => {
+          a = ((a << 5) - a) + b.charCodeAt(0);
+          return a & a;
+        }, 0)) || index + 1,
         name: item.products.name,
         price: parseFloat(item.products.price.toString()),
         image: item.products.image_url || '',
         description: item.products.description || '',
         category: item.products.category,
-        quantity: item.quantity
+        quantity: item.quantity,
+        originalId: item.products.id
       }));
 
       setCartItems(transformedItems);
@@ -77,12 +82,15 @@ export const usePersistentCart = () => {
     }
 
     try {
+      // Use originalId (UUID) for database operations
+      const productId = product.originalId || product.id.toString();
+      
       const { data, error } = await supabase
         .from('cart')
         .upsert(
           {
             user_id: user.id,
-            product_id: product.id.toString(),
+            product_id: productId,
             quantity: 1
           },
           {
@@ -144,11 +152,15 @@ export const usePersistentCart = () => {
     if (!user) return;
 
     try {
+      // Find the item to get its originalId
+      const item = cartItems.find(item => item.id === id);
+      const productId = item?.originalId || id.toString();
+
       const { error } = await supabase
         .from('cart')
         .delete()
         .eq('user_id', user.id)
-        .eq('product_id', id.toString());
+        .eq('product_id', productId);
 
       if (error) throw error;
 
@@ -177,11 +189,15 @@ export const usePersistentCart = () => {
     }
 
     try {
+      // Find the item to get its originalId
+      const item = cartItems.find(item => item.id === id);
+      const productId = item?.originalId || id.toString();
+
       const { error } = await supabase
         .from('cart')
         .update({ quantity })
         .eq('user_id', user.id)
-        .eq('product_id', id.toString());
+        .eq('product_id', productId);
 
       if (error) throw error;
 

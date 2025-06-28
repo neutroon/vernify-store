@@ -41,13 +41,19 @@ export const ProductGrid = ({
         }
 
         // Transform Supabase data to match our Product interface
-        const transformedProducts: Product[] = (data || []).map(product => ({
-          id: parseInt(product.id) || 0, // Convert UUID to number for compatibility
+        const transformedProducts: Product[] = (data || []).map((product, index) => ({
+          // Use a hash of the UUID to generate a consistent numeric ID for the frontend
+          id: Math.abs(product.id.split('-').join('').slice(0, 8).split('').reduce((a, b) => {
+            a = ((a << 5) - a) + b.charCodeAt(0);
+            return a & a;
+          }, 0)) || index + 1,
           name: product.name,
           price: parseFloat(product.price.toString()),
           image: product.image_url || '',
           description: product.description || '',
-          category: product.category
+          category: product.category,
+          // Store the original UUID for database operations
+          originalId: product.id
         }));
 
         setProducts(transformedProducts);
