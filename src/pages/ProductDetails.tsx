@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
@@ -47,7 +46,12 @@ const ProductDetails = () => {
   };
 
   const handleAddToCart = () => {
-    addToCart(product, quantity);
+    // Create a cart item with quantity
+    const cartItem = {
+      ...product,
+      quantity: quantity
+    };
+    addToCart(cartItem);
     toast({
       title: "Added to cart!",
       description: `${quantity} x ${product.name} added to your cart.`,
@@ -267,7 +271,7 @@ const ProductDetails = () => {
         </div>
 
         {/* Customer Reviews */}
-        <CustomerReviews />
+        <CustomerReviews productId={product.id} />
       </main>
 
       <Footer />
