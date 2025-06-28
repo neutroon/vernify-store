@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -15,7 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { addToCart, cartItems } = useCart();
   const { favorites, toggleFavorite } = useFavorites();
   const { toast } = useToast();
   const [selectedImage, setSelectedImage] = useState(0);
@@ -52,21 +53,29 @@ const ProductDetails = () => {
       quantity: quantity
     };
     addToCart(cartItem);
-    toast({
-      title: "Added to cart!",
-      description: `${quantity} x ${product.name} added to your cart.`,
-    });
+    
+    // Show toast after successful add to cart
+    setTimeout(() => {
+      toast({
+        title: "Added to cart!",
+        description: `${quantity} x ${product.name} added to your cart.`,
+      });
+    }, 0);
   };
 
   const handleToggleFavorite = () => {
     toggleFavorite(product.id);
     const isFavorite = favorites.includes(product.id);
-    toast({
-      title: isFavorite ? "Removed from favorites" : "Added to favorites",
-      description: isFavorite ? 
-        `${product.name} removed from your favorites.` : 
-        `${product.name} added to your favorites.`,
-    });
+    
+    // Show toast after successful toggle
+    setTimeout(() => {
+      toast({
+        title: isFavorite ? "Removed from favorites" : "Added to favorites",
+        description: isFavorite ? 
+          `${product.name} removed from your favorites.` : 
+          `${product.name} added to your favorites.`,
+      });
+    }, 0);
   };
 
   const isFavorite = favorites.includes(product.id);
@@ -74,7 +83,7 @@ const ProductDetails = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-amber-50">
       <Header 
-        cartCount={0}
+        cartCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)}
         onCartClick={() => {}}
         currentPage="product"
       />

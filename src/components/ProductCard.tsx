@@ -22,13 +22,22 @@ export const ProductCard = ({ product, onAddToCart, onToggleFavorite, isFavorite
   const rating = Math.floor(Math.random() * 2) + 4; // 4 or 5 stars
   const reviewCount = Math.floor(Math.random() * 200) + 50; // 50-250 reviews
 
-  const handleCardClick = () => {
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Prevent navigation if clicking on interactive elements
+    if ((e.target as HTMLElement).closest('button')) {
+      return;
+    }
     navigate(`/product/${product.id}`);
   };
 
   const handleButtonClick = (e: React.MouseEvent, action: () => void) => {
+    e.preventDefault();
     e.stopPropagation();
     action();
+  };
+
+  const handleViewDetails = () => {
+    navigate(`/product/${product.id}`);
   };
 
   return (
@@ -81,7 +90,7 @@ export const ProductCard = ({ product, onAddToCart, onToggleFavorite, isFavorite
             className={`absolute top-4 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-md hover:bg-white text-amber-800 hover:text-rose-600 transition-all duration-300 shadow-lg ${
               isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
             }`}
-            onClick={(e) => handleButtonClick(e, handleCardClick)}
+            onClick={(e) => handleButtonClick(e, handleViewDetails)}
           >
             View Details
           </Button>
