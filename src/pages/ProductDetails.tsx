@@ -3,341 +3,274 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { Cart } from '@/components/Cart';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Heart, ShoppingCart, Star, ArrowLeft, Share2, Truck, Shield, RotateCcw } from 'lucide-react';
+import { Star, Heart, ShoppingCart, ArrowLeft, Plus, Minus } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { useFavorites } from '@/hooks/useFavorites';
 import { CustomerReviews } from '@/components/CustomerReviews';
-
-// Mock product data - in a real app this would come from an API
-const products = [
-  {
-    id: 1,
-    name: "Rose Elegance",
-    price: 89.99,
-    images: [
-      "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=800&h=800&fit=crop",
-      "https://images.unsplash.com/photo-1594736797933-d0a0ba3fe65a?w=800&h=800&fit=crop",
-      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=800&fit=crop"
-    ],
-    description: "A sophisticated blend of Bulgarian roses and white musk that captures the essence of a blooming garden at dawn. This exquisite fragrance opens with fresh rose petals, develops into a heart of white florals, and settles into a warm, musky base that lingers beautifully on the skin.",
-    category: "Floral",
-    inStock: true,
-    volume: "50ml",
-    notes: {
-      top: ["Bulgarian Rose", "Pink Pepper", "Bergamot"],
-      middle: ["White Rose", "Jasmine", "Lily of the Valley"],
-      base: ["White Musk", "Sandalwood", "Amber"]
-    }
-  },
-  {
-    id: 2,
-    name: "Midnight Oud",
-    price: 129.99,
-    images: [
-      "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=800&h=800&fit=crop",
-      "https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=800&h=800&fit=crop"
-    ],
-    description: "Rich and mysterious with notes of premium oud and golden amber. This luxurious fragrance transports you to exotic lands with its deep, complex composition that evolves throughout the day.",
-    category: "Oriental",
-    inStock: true,
-    volume: "75ml",
-    notes: {
-      top: ["Saffron", "Black Pepper", "Cardamom"],
-      middle: ["Oud", "Rose", "Patchouli"],
-      base: ["Amber", "Vanilla", "Musk"]
-    }
-  }
-];
+import { useToast } from '@/hooks/use-toast';
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  const { addToCart } = useCart();
+  const { favorites, toggleFavorite } = useFavorites();
+  const { toast } = useToast();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  
-  const { cartItems, addToCart, removeFromCart, updateQuantity } = useCart();
-  const { favorites, toggleFavorite } = useFavorites();
 
-  const product = products.find(p => p.id === parseInt(id || ''));
-
-  if (!product) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-amber-50">
-        <Header 
-          cartCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)}
-          onCartClick={() => setIsCartOpen(true)}
-        />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-4xl font-playfair font-bold text-amber-900 mb-4">Product Not Found</h1>
-          <Button onClick={() => navigate('/shop')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Shop
-          </Button>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  const handleAddToCart = () => {
-    for (let i = 0; i < quantity; i++) {
-      addToCart(product);
+  // Mock product data - in a real app, this would come from an API
+  const product = {
+    id: parseInt(id || '1'),
+    name: 'Midnight Elegance',
+    price: 89.99,
+    image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&h=800&fit=crop&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1563170351-be82bc888aa4?w=800&h=800&fit=crop&q=80'
+    ],
+    description: 'An intoxicating blend of dark berries, vanilla, and amber that captures the essence of sophisticated evenings. This luxurious fragrance opens with fresh bergamot and blackcurrant, evolving into a heart of jasmine and rose, before settling into a warm base of sandalwood and musk.',
+    category: 'Oriental',
+    inStock: true,
+    volume: '50ml',
+    rating: 4.8,
+    reviews: 127,
+    notes: {
+      top: ['Bergamot', 'Blackcurrant', 'Pink Pepper'],
+      middle: ['Jasmine', 'Rose', 'Lily of the Valley'],
+      base: ['Sandalwood', 'Vanilla', 'Amber', 'Musk']
     }
   };
+
+  const handleAddToCart = () => {
+    addToCart(product, quantity);
+    toast({
+      title: "Added to cart!",
+      description: `${quantity} x ${product.name} added to your cart.`,
+    });
+  };
+
+  const handleToggleFavorite = () => {
+    toggleFavorite(product.id);
+    const isFavorite = favorites.includes(product.id);
+    toast({
+      title: isFavorite ? "Removed from favorites" : "Added to favorites",
+      description: isFavorite ? 
+        `${product.name} removed from your favorites.` : 
+        `${product.name} added to your favorites.`,
+    });
+  };
+
+  const isFavorite = favorites.includes(product.id);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-amber-50">
       <Header 
-        cartCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)}
-        onCartClick={() => setIsCartOpen(true)}
+        cartCount={0}
+        onCartClick={() => {}}
+        currentPage="product"
       />
       
       <main className="container mx-auto px-4 py-8">
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate('/shop')}
-          className="mb-6 text-amber-700 hover:text-amber-900"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Shop
-        </Button>
+        {/* Breadcrumb */}
+        <div className="flex items-center space-x-2 text-sm text-amber-600 mb-8">
+          <button 
+            onClick={() => navigate('/')}
+            className="hover:text-rose-600 transition-colors"
+          >
+            Home
+          </button>
+          <span>/</span>
+          <button 
+            onClick={() => navigate('/shop')}
+            className="hover:text-rose-600 transition-colors"
+          >
+            Shop
+          </button>
+          <span>/</span>
+          <span className="text-amber-800 font-medium">{product.name}</span>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+        <div className="grid lg:grid-cols-2 gap-12 mb-16">
           {/* Product Images */}
           <div className="space-y-4">
-            <div className="aspect-square overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div className="aspect-square rounded-2xl overflow-hidden bg-white shadow-lg">
               <img
                 src={product.images[selectedImage]}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
               />
             </div>
-            {product.images.length > 1 && (
-              <div className="grid grid-cols-4 gap-4">
-                {product.images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`aspect-square overflow-hidden rounded-lg border-2 transition-all ${
-                      selectedImage === index 
-                        ? 'border-rose-500 scale-105' 
-                        : 'border-gray-200 hover:border-amber-300'
-                    }`}
-                  >
-                    <img
-                      src={image}
-                      alt={`${product.name} ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
+            <div className="flex space-x-4">
+              {product.images.map((image, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedImage(index)}
+                  className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                    selectedImage === index ? 'border-rose-500' : 'border-transparent'
+                  }`}
+                >
+                  <img
+                    src={image}
+                    alt={`${product.name} view ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Product Info */}
           <div className="space-y-6">
             <div>
-              <Badge className="mb-4 bg-gradient-to-r from-amber-100 to-rose-100 text-amber-800 border-amber-200">
+              <Badge className="mb-4 bg-gradient-to-r from-rose-500 to-amber-500 text-white">
                 {product.category}
               </Badge>
               <h1 className="text-4xl font-playfair font-bold text-amber-900 mb-4">
                 {product.name}
               </h1>
-              <div className="flex items-center space-x-4 mb-4">
-                <span className="text-3xl font-bold bg-gradient-to-r from-amber-800 to-rose-800 bg-clip-text text-transparent">
-                  ${product.price}
-                </span>
-                <span className="text-amber-600">{product.volume}</span>
-              </div>
-              <div className="flex items-center space-x-2 mb-6">
+              <div className="flex items-center space-x-4 mb-6">
                 <div className="flex items-center">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 text-amber-400 fill-current" />
+                    <Star
+                      key={i}
+                      className={`w-5 h-5 ${
+                        i < Math.floor(product.rating)
+                          ? 'text-amber-400 fill-current'
+                          : 'text-gray-300'
+                      }`}
+                    />
                   ))}
-                </div>
-                <span className="text-amber-700">(127 reviews)</span>
-              </div>
-            </div>
-
-            <p className="text-amber-700 leading-relaxed text-lg">
-              {product.description}
-            </p>
-
-            {/* Quantity and Actions */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <label className="text-amber-800 font-medium">Quantity:</label>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="h-10 w-10"
-                  >
-                    -
-                  </Button>
-                  <span className="w-12 text-center font-medium">{quantity}</span>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="h-10 w-10"
-                  >
-                    +
-                  </Button>
+                  <span className="ml-2 text-amber-600 font-medium">
+                    {product.rating} ({product.reviews} reviews)
+                  </span>
                 </div>
               </div>
+              <p className="text-2xl font-bold text-rose-600 mb-6">
+                ${product.price}
+              </p>
+              <p className="text-amber-700 leading-relaxed text-lg">
+                {product.description}
+              </p>
+            </div>
 
-              <div className="flex space-x-4">
-                <Button 
-                  onClick={handleAddToCart}
-                  className="flex-1 bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white h-12 text-lg"
+            {/* Quantity Selector */}
+            <div className="flex items-center space-x-4">
+              <span className="text-amber-800 font-medium">Quantity:</span>
+              <div className="flex items-center border border-amber-200 rounded-lg">
+                <button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="p-2 hover:bg-amber-50 transition-colors"
                 >
-                  <ShoppingCart className="mr-2 h-5 w-5" />
-                  Add to Cart
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => toggleFavorite(product.id)}
-                  className={`h-12 w-12 ${
-                    favorites.includes(product.id) 
-                      ? 'text-rose-500 border-rose-500 bg-rose-50' 
-                      : 'text-amber-600 border-amber-300'
-                  }`}
+                  <Minus className="w-4 h-4" />
+                </button>
+                <span className="px-4 py-2 font-medium">{quantity}</span>
+                <button
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="p-2 hover:bg-amber-50 transition-colors"
                 >
-                  <Heart className={`h-5 w-5 ${favorites.includes(product.id) ? 'fill-current' : ''}`} />
-                </Button>
-                <Button variant="outline" size="icon" className="h-12 w-12">
-                  <Share2 className="h-5 w-5" />
-                </Button>
+                  <Plus className="w-4 h-4" />
+                </button>
               </div>
             </div>
 
-            {/* Features */}
-            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-amber-200">
-              <div className="text-center">
-                <Truck className="h-8 w-8 text-amber-600 mx-auto mb-2" />
-                <p className="text-sm text-amber-700">Free Shipping</p>
-              </div>
-              <div className="text-center">
-                <Shield className="h-8 w-8 text-amber-600 mx-auto mb-2" />
-                <p className="text-sm text-amber-700">Authentic</p>
-              </div>
-              <div className="text-center">
-                <RotateCcw className="h-8 w-8 text-amber-600 mx-auto mb-2" />
-                <p className="text-sm text-amber-700">30-Day Return</p>
-              </div>
+            {/* Action Buttons */}
+            <div className="flex space-x-4">
+              <Button
+                onClick={handleAddToCart}
+                className="flex-1 bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white py-6 text-lg font-medium"
+              >
+                <ShoppingCart className="w-5 h-5 mr-2" />
+                Add to Cart
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleToggleFavorite}
+                className={`px-6 py-6 border-2 transition-all ${
+                  isFavorite
+                    ? 'border-rose-500 text-rose-500 bg-rose-50'
+                    : 'border-amber-300 text-amber-600 hover:border-rose-500 hover:text-rose-500'
+                }`}
+              >
+                <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
+              </Button>
             </div>
+
+            {/* Product Details */}
+            <Card>
+              <CardContent className="p-6">
+                <Tabs defaultValue="notes" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="notes">Fragrance Notes</TabsTrigger>
+                    <TabsTrigger value="details">Product Details</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="notes" className="space-y-4 mt-6">
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="font-medium text-amber-800 mb-2">Top Notes</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {product.notes.top.map((note, index) => (
+                            <Badge key={index} variant="outline" className="border-rose-200 text-rose-600">
+                              {note}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-amber-800 mb-2">Middle Notes</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {product.notes.middle.map((note, index) => (
+                            <Badge key={index} variant="outline" className="border-amber-200 text-amber-600">
+                              {note}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-amber-800 mb-2">Base Notes</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {product.notes.base.map((note, index) => (
+                            <Badge key={index} variant="outline" className="border-amber-200 text-amber-600">
+                              {note}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="details" className="space-y-4 mt-6">
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-amber-700">Volume:</span>
+                        <span className="font-medium text-amber-900">{product.volume}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-amber-700">Category:</span>
+                        <span className="font-medium text-amber-900">{product.category}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-amber-700">Stock:</span>
+                        <span className="font-medium text-green-600">
+                          {product.inStock ? 'In Stock' : 'Out of Stock'}
+                        </span>
+                      </div>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
-        {/* Product Details Tabs */}
-        <Tabs defaultValue="notes" className="mb-16">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="notes">Fragrance Notes</TabsTrigger>
-            <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="reviews">Reviews</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="notes" className="mt-8">
-            <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-8 border border-amber-100">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div>
-                  <h3 className="text-xl font-playfair font-bold text-amber-900 mb-4">Top Notes</h3>
-                  <ul className="space-y-2">
-                    {product.notes.top.map((note, index) => (
-                      <li key={index} className="text-amber-700 flex items-center">
-                        <div className="w-2 h-2 bg-rose-400 rounded-full mr-3"></div>
-                        {note}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="text-xl font-playfair font-bold text-amber-900 mb-4">Middle Notes</h3>
-                  <ul className="space-y-2">
-                    {product.notes.middle.map((note, index) => (
-                      <li key={index} className="text-amber-700 flex items-center">
-                        <div className="w-2 h-2 bg-amber-400 rounded-full mr-3"></div>
-                        {note}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="text-xl font-playfair font-bold text-amber-900 mb-4">Base Notes</h3>
-                  <ul className="space-y-2">
-                    {product.notes.base.map((note, index) => (
-                      <li key={index} className="text-amber-700 flex items-center">
-                        <div className="w-2 h-2 bg-orange-400 rounded-full mr-3"></div>
-                        {note}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="details" className="mt-8">
-            <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-8 border border-amber-100">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <h3 className="text-xl font-playfair font-bold text-amber-900 mb-4">Product Information</h3>
-                  <dl className="space-y-3">
-                    <div className="flex justify-between">
-                      <dt className="text-amber-700">Volume:</dt>
-                      <dd className="font-medium text-amber-900">{product.volume}</dd>
-                    </div>
-                    <div className="flex justify-between">
-                      <dt className="text-amber-700">Category:</dt>
-                      <dd className="font-medium text-amber-900">{product.category}</dd>
-                    </div>
-                    <div className="flex justify-between">
-                      <dt className="text-amber-700">Concentration:</dt>
-                      <dd className="font-medium text-amber-900">Eau de Parfum</dd>
-                    </div>
-                    <div className="flex justify-between">
-                      <dt className="text-amber-700">Longevity:</dt>
-                      <dd className="font-medium text-amber-900">6-8 hours</dd>
-                    </div>
-                  </dl>
-                </div>
-                <div>
-                  <h3 className="text-xl font-playfair font-bold text-amber-900 mb-4">Care Instructions</h3>
-                  <ul className="space-y-2 text-amber-700">
-                    <li>• Store in a cool, dry place</li>
-                    <li>• Avoid direct sunlight</li>
-                    <li>• Keep bottle upright</li>
-                    <li>• Use within 3 years of opening</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="reviews" className="mt-8">
-            <CustomerReviews productId={product.id} />
-          </TabsContent>
-        </Tabs>
+        {/* Customer Reviews */}
+        <CustomerReviews />
       </main>
 
       <Footer />
-
-      <Cart 
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        items={cartItems}
-        onRemoveItem={removeFromCart}
-        onUpdateQuantity={updateQuantity}
-      />
     </div>
   );
 };
