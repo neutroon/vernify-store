@@ -1,78 +1,77 @@
 
-import { useState, useMemo } from 'react';
-import { ProductGrid } from '@/components/ProductGrid';
-import { Header } from '@/components/Header';
 import { HeroSection } from '@/components/HeroSection';
+import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { Cart } from '@/components/Cart';
-import { SearchFilter } from '@/components/SearchFilter';
-import { useCart } from '@/hooks/useCart';
-import { useFavorites } from '@/hooks/useFavorites';
+import { ProductGrid } from '@/components/ProductGrid';
+import { CustomerReviews } from '@/components/CustomerReviews';
+import { EnhancedCart } from '@/components/EnhancedCart';
+import { usePersistentCart } from '@/hooks/usePersistentCart';
+import { usePersistentFavorites } from '@/hooks/usePersistentFavorites';
 
 const Index = () => {
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 200]);
-  
-  const { cartItems, addToCart, removeFromCart, updateQuantity } = useCart();
-  const { favorites, toggleFavorite, isFavorite } = useFavorites();
+  const { 
+    cartItems, 
+    isCartOpen, 
+    addToCart, 
+    removeFromCart, 
+    updateQuantity, 
+    clearCart,
+    toggleCart 
+  } = usePersistentCart();
 
-  const categories = ['All', 'Floral', 'Oriental', 'Citrus', 'Gourmand', 'Aquatic'];
+  const { 
+    favorites, 
+    toggleFavorite, 
+    isFavorite 
+  } = usePersistentFavorites();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-amber-50">
       <Header 
         cartCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)}
-        onCartClick={() => setIsCartOpen(true)}
+        onCartClick={toggleCart}
         currentPage="home"
       />
       
-      <HeroSection />
-      
-      <main className="container mx-auto px-4 py-16" id="products-section">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-playfair font-bold text-amber-900 mb-6">
-            Our <span className="bg-gradient-to-r from-rose-600 to-amber-600 bg-clip-text text-transparent">Collection</span>
-          </h2>
-          <p className="text-xl text-amber-700 max-w-2xl mx-auto leading-relaxed font-light">
-            Explore our carefully curated selection of premium fragrances, each bottle containing a unique story waiting to be discovered
-          </p>
-          <div className="flex justify-center mt-8">
-            <div className="h-1 w-24 bg-gradient-to-r from-rose-500 to-amber-500 rounded-full"></div>
+      <main>
+        <HeroSection />
+        
+        <section className="py-20 bg-white/50 backdrop-blur-md">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-playfair font-bold text-amber-900 mb-4">
+                Featured <span className="bg-gradient-to-r from-rose-600 to-amber-600 bg-clip-text text-transparent">Fragrances</span>
+              </h2>
+              <p className="text-amber-700 max-w-2xl mx-auto font-light">
+                Discover our handpicked selection of premium fragrances, each one a masterpiece of scent artistry
+              </p>
+              <div className="flex justify-center mt-8">
+                <div className="h-1 w-24 bg-gradient-to-r from-rose-500 to-amber-500 rounded-full"></div>
+              </div>
+            </div>
+            
+            <ProductGrid
+              onAddToCart={addToCart}
+              onToggleFavorite={toggleFavorite}
+              favorites={favorites}
+              isFavorite={isFavorite}
+            />
           </div>
-        </div>
+        </section>
 
-        <SearchFilter
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-          categories={categories}
-          priceRange={priceRange}
-          onPriceRangeChange={setPriceRange}
-        />
-
-        <ProductGrid 
-          onAddToCart={addToCart}
-          onToggleFavorite={toggleFavorite}
-          favorites={favorites}
-          isFavorite={isFavorite}
-          searchTerm={searchTerm}
-          selectedCategory={selectedCategory}
-          priceRange={priceRange}
-        />
+        <CustomerReviews />
       </main>
 
-      <Footer />
-
-      <Cart 
+      <EnhancedCart
         isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
+        onClose={toggleCart}
         items={cartItems}
         onRemoveItem={removeFromCart}
         onUpdateQuantity={updateQuantity}
+        onClearCart={clearCart}
       />
+
+      <Footer />
     </div>
   );
 };
