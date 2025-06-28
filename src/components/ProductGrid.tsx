@@ -1,4 +1,5 @@
 
+import { useMemo } from 'react';
 import { ProductCard } from '@/components/ProductCard';
 import { Product } from '@/types/product';
 
@@ -57,12 +58,49 @@ interface ProductGridProps {
   onAddToCart: (product: Product) => void;
   onToggleFavorite: (productId: number) => void;
   favorites: number[];
+  searchTerm?: string;
+  selectedCategory?: string;
+  priceRange?: [number, number];
 }
 
-export const ProductGrid = ({ onAddToCart, onToggleFavorite, favorites }: ProductGridProps) => {
+export const ProductGrid = ({ 
+  onAddToCart, 
+  onToggleFavorite, 
+  favorites,
+  searchTerm = '',
+  selectedCategory = 'All',
+  priceRange = [0, 200]
+}: ProductGridProps) => {
+  const filteredProducts = useMemo(() => {
+    return products.filter(product => {
+      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          product.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
+      const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
+      
+      return matchesSearch && matchesCategory && matchesPrice;
+    });
+  }, [searchTerm, selectedCategory, priceRange]);
+
+  if (filteredProducts.length === 0) {
+    return (
+      <div className="text-center py-16">
+        <div className="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <span className="text-4xl">🔍</span>
+        </div>
+        <h3 className="text-2xl font-playfair font-semibold text-amber-900 mb-4">
+          No fragrances found
+        </h3>
+        <p className="text-amber-600">
+          Try adjusting your search terms or filters to find the perfect scent
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {products.map((product, index) => (
+      {filteredProducts.map((product, index) => (
         <div 
           key={product.id} 
           className="animate-fade-in"
