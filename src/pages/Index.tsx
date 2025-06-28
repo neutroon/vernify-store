@@ -2,6 +2,8 @@
 import { useState, useMemo } from 'react';
 import { ProductGrid } from '@/components/ProductGrid';
 import { Header } from '@/components/Header';
+import { HeroSection } from '@/components/HeroSection';
+import { Footer } from '@/components/Footer';
 import { Cart } from '@/components/Cart';
 import { SearchFilter } from '@/components/SearchFilter';
 import { useCart } from '@/hooks/useCart';
@@ -26,13 +28,15 @@ const Index = () => {
         currentPage="home"
       />
       
-      <main className="container mx-auto px-4 py-8">
-        <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-5xl md:text-7xl font-playfair font-bold text-amber-900 mb-6">
-            Essence <span className="bg-gradient-to-r from-rose-600 to-amber-600 bg-clip-text text-transparent">Boutique</span>
-          </h1>
-          <p className="text-xl text-amber-700 max-w-3xl mx-auto leading-relaxed font-light">
-            Discover our exquisite collection of premium perfumes, crafted to capture your unique essence and elevate every moment
+      <HeroSection />
+      
+      <main className="container mx-auto px-4 py-16" id="products-section">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-playfair font-bold text-amber-900 mb-6">
+            Our <span className="bg-gradient-to-r from-rose-600 to-amber-600 bg-clip-text text-transparent">Collection</span>
+          </h2>
+          <p className="text-xl text-amber-700 max-w-2xl mx-auto leading-relaxed font-light">
+            Explore our carefully curated selection of premium fragrances, each bottle containing a unique story waiting to be discovered
           </p>
           <div className="flex justify-center mt-8">
             <div className="h-1 w-24 bg-gradient-to-r from-rose-500 to-amber-500 rounded-full"></div>
@@ -58,6 +62,8 @@ const Index = () => {
           priceRange={priceRange}
         />
       </main>
+
+      <Footer />
 
       <Cart 
         isOpen={isCartOpen}
