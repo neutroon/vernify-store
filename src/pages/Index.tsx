@@ -59,7 +59,7 @@ const Index = () => {
           </div>
         </section>
 
-        <CustomerReviews />
+        <CustomerReviews productId={1} />
       </main>
 
       <EnhancedCart

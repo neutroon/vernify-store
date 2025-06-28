@@ -13,6 +13,8 @@ const Shop = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 200]);
 
+  const categories = ['All', 'Floral', 'Woody', 'Fresh', 'Oriental', 'Citrus'];
+
   const { 
     cartItems, 
     isCartOpen, 
@@ -55,6 +57,7 @@ const Shop = () => {
           onSearchChange={setSearchTerm}
           selectedCategory={selectedCategory}
           onCategoryChange={setSelectedCategory}
+          categories={categories}
           priceRange={priceRange}
           onPriceRangeChange={setPriceRange}
         />

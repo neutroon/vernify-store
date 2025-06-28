@@ -173,7 +173,7 @@ export const EnhancedCart = ({
         .insert({
           user_id: user.id,
           total_amount: finalTotal,
-          shipping_address: selectedAddress,
+          shipping_address: selectedAddress as any, // Cast to any to satisfy Json type
           payment_method: paymentMethod,
           order_notes: orderNotes || null,
           shipping_cost: shippingCost,
