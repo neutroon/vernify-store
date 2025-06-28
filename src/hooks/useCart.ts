@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export const useCart = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const { toast } = useToast();
 
   const addToCart = (product: Product) => {
@@ -55,10 +56,16 @@ export const useCart = () => {
     );
   };
 
+  const toggleCart = () => {
+    setIsCartOpen(prev => !prev);
+  };
+
   return {
     cartItems,
+    isCartOpen,
     addToCart,
     removeFromCart,
-    updateQuantity
+    updateQuantity,
+    toggleCart
   };
 };

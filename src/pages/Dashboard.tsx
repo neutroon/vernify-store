@@ -14,7 +14,7 @@ import { Cart } from '@/components/Cart';
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const { cartItems, toggleCart, isCartOpen } = useCart();
+  const { cartItems, isCartOpen, toggleCart, removeFromCart, updateQuantity, addToCart } = useCart();
   const { favorites } = useFavorites();
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -72,7 +72,13 @@ const Dashboard = () => {
         currentPage="dashboard"
       />
       
-      <Cart isOpen={isCartOpen} onClose={toggleCart} />
+      <Cart 
+        isOpen={isCartOpen} 
+        onClose={toggleCart}
+        items={cartItems}
+        onRemoveItem={removeFromCart}
+        onUpdateQuantity={updateQuantity}
+      />
 
       <main className="container mx-auto px-4 pt-24 pb-16">
         {/* Dashboard Header */}
@@ -258,7 +264,11 @@ const Dashboard = () => {
                         </div>
                         <h3 className="font-medium mb-2">{product.name}</h3>
                         <p className="text-amber-600 font-bold">${product.price}</p>
-                        <Button className="w-full mt-3" size="sm">
+                        <Button 
+                          className="w-full mt-3" 
+                          size="sm"
+                          onClick={() => addToCart(product)}
+                        >
                           Add to Cart
                         </Button>
                       </div>
