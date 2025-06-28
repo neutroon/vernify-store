@@ -15,7 +15,7 @@ const Shop = () => {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 200]);
   
   const { cartItems, addToCart, removeFromCart, updateQuantity } = useCart();
-  const { favorites, toggleFavorite } = useFavorites();
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
 
   const categories = ['All', 'Floral', 'Oriental', 'Citrus', 'Gourmand', 'Aquatic'];
 
@@ -54,6 +54,7 @@ const Shop = () => {
           onAddToCart={addToCart}
           onToggleFavorite={toggleFavorite}
           favorites={favorites}
+          isFavorite={isFavorite}
           searchTerm={searchTerm}
           selectedCategory={selectedCategory}
           priceRange={priceRange}

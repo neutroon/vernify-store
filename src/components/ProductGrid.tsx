@@ -56,8 +56,9 @@ const products: Product[] = [
 
 interface ProductGridProps {
   onAddToCart: (product: Product) => void;
-  onToggleFavorite: (productId: number) => void;
-  favorites: number[];
+  onToggleFavorite: (product: Product) => void;
+  favorites: Product[];
+  isFavorite: (productId: number) => boolean;
   searchTerm?: string;
   selectedCategory?: string;
   priceRange?: [number, number];
@@ -67,6 +68,7 @@ export const ProductGrid = ({
   onAddToCart, 
   onToggleFavorite, 
   favorites,
+  isFavorite,
   searchTerm = '',
   selectedCategory = 'All',
   priceRange = [0, 200]
@@ -109,8 +111,8 @@ export const ProductGrid = ({
           <ProductCard
             product={product}
             onAddToCart={() => onAddToCart(product)}
-            onToggleFavorite={() => onToggleFavorite(product.id)}
-            isFavorite={favorites.includes(product.id)}
+            onToggleFavorite={() => onToggleFavorite(product)}
+            isFavorite={isFavorite(product.id)}
           />
         </div>
       ))}

@@ -64,9 +64,7 @@ const products: Product[] = [
 const Favorites = () => {
   const navigate = useNavigate();
   const { cartItems, addToCart } = useCart();
-  const { favorites, toggleFavorite } = useFavorites();
-
-  const favoriteProducts = products.filter(product => favorites.includes(product.id));
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-amber-50">
@@ -97,7 +95,7 @@ const Favorites = () => {
           </p>
         </div>
 
-        {favoriteProducts.length === 0 ? (
+        {favorites.length === 0 ? (
           <div className="text-center py-16">
             <div className="w-24 h-24 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <span className="text-4xl">💝</span>
@@ -117,7 +115,7 @@ const Favorites = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {favoriteProducts.map((product, index) => (
+            {favorites.map((product, index) => (
               <div 
                 key={product.id} 
                 className="animate-fade-in"
@@ -126,7 +124,7 @@ const Favorites = () => {
                 <ProductCard
                   product={product}
                   onAddToCart={() => addToCart(product)}
-                  onToggleFavorite={() => toggleFavorite(product.id)}
+                  onToggleFavorite={() => toggleFavorite(product)}
                   isFavorite={true}
                 />
               </div>

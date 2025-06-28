@@ -17,7 +17,7 @@ const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart, cartItems } = useCart();
-  const { favorites, toggleFavorite } = useFavorites();
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const { toast } = useToast();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -64,21 +64,21 @@ const ProductDetails = () => {
   };
 
   const handleToggleFavorite = () => {
-    toggleFavorite(product.id);
-    const isFavorite = favorites.includes(product.id);
+    toggleFavorite(product);
+    const isCurrentlyFavorite = isFavorite(product.id);
     
     // Show toast after successful toggle
     setTimeout(() => {
       toast({
-        title: isFavorite ? "Removed from favorites" : "Added to favorites",
-        description: isFavorite ? 
+        title: isCurrentlyFavorite ? "Removed from favorites" : "Added to favorites",
+        description: isCurrentlyFavorite ? 
           `${product.name} removed from your favorites.` : 
           `${product.name} added to your favorites.`,
       });
     }, 0);
   };
 
-  const isFavorite = favorites.includes(product.id);
+  const isProductFavorite = isFavorite(product.id);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-amber-50">
@@ -204,12 +204,12 @@ const ProductDetails = () => {
                 variant="outline"
                 onClick={handleToggleFavorite}
                 className={`px-6 py-6 border-2 transition-all ${
-                  isFavorite
+                  isProductFavorite
                     ? 'border-rose-500 text-rose-500 bg-rose-50'
                     : 'border-amber-300 text-amber-600 hover:border-rose-500 hover:text-rose-500'
                 }`}
               >
-                <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
+                <Heart className={`w-5 h-5 ${isProductFavorite ? 'fill-current' : ''}`} />
               </Button>
             </div>
 
