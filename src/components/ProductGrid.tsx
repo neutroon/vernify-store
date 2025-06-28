@@ -1,58 +1,8 @@
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { ProductCard } from '@/components/ProductCard';
 import { Product } from '@/types/product';
-
-const products: Product[] = [
-  {
-    id: 1,
-    name: "Rose Elegance",
-    price: 89.99,
-    image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=400&fit=crop",
-    description: "A sophisticated blend of Bulgarian roses and white musk",
-    category: "Floral"
-  },
-  {
-    id: 2,
-    name: "Midnight Oud",
-    price: 129.99,
-    image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=400&fit=crop",
-    description: "Rich and mysterious with notes of oud and amber",
-    category: "Oriental"
-  },
-  {
-    id: 3,
-    name: "Citrus Breeze",
-    price: 69.99,
-    image: "https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=400&h=400&fit=crop",
-    description: "Fresh and invigorating with bergamot and lemon",
-    category: "Citrus"
-  },
-  {
-    id: 4,
-    name: "Vanilla Dreams",
-    price: 94.99,
-    image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=400&fit=crop",
-    description: "Warm and comforting with vanilla and sandalwood",
-    category: "Gourmand"
-  },
-  {
-    id: 5,
-    name: "Ocean Mist",
-    price: 79.99,
-    image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=400&fit=crop",
-    description: "Fresh aquatic scent with sea salt and driftwood",
-    category: "Aquatic"
-  },
-  {
-    id: 6,
-    name: "Golden Amber",
-    price: 119.99,
-    image: "https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=400&h=400&fit=crop",
-    description: "Luxurious amber with hints of spice and leather",
-    category: "Oriental"
-  }
-];
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProductGridProps {
   onAddToCart: (product: Product) => void;
@@ -73,6 +23,44 @@ export const ProductGrid = ({
   selectedCategory = 'All',
   priceRange = [0, 200]
 }: ProductGridProps) => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching products:', error);
+          return;
+        }
+
+        // Transform Supabase data to match our Product interface
+        const transformedProducts: Product[] = (data || []).map(product => ({
+          id: parseInt(product.id) || 0, // Convert UUID to number for compatibility
+          name: product.name,
+          price: parseFloat(product.price.toString()),
+          image: product.image_url || '',
+          description: product.description || '',
+          category: product.category
+        }));
+
+        setProducts(transformedProducts);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -82,7 +70,18 @@ export const ProductGrid = ({
       
       return matchesSearch && matchesCategory && matchesPrice;
     });
-  }, [searchTerm, selectedCategory, priceRange]);
+  }, [products, searchTerm, selectedCategory, priceRange]);
+
+  if (loading) {
+    return (
+      <div className="text-center py-16">
+        <div className="w-12 h-12 bg-gradient-to-r from-rose-500 via-amber-500 to-rose-600 rounded-full flex items-center justify-center shadow-lg animate-pulse mx-auto mb-4">
+          <span className="text-white font-bold text-xl">E</span>
+        </div>
+        <p className="text-amber-700">Loading products...</p>
+      </div>
+    );
+  }
 
   if (filteredProducts.length === 0) {
     return (
