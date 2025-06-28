@@ -1,8 +1,17 @@
 
-import { ShoppingCart, Heart, Menu, X } from 'lucide-react';
+import { ShoppingCart, Heart, Menu, X, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 
 interface HeaderProps {
   cartCount: number;
@@ -15,6 +24,7 @@ export const Header = ({ cartCount, onCartClick, currentPage = 'home' }: HeaderP
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const [headerOpacity, setHeaderOpacity] = useState(0);
+  const { user, signOut, loading } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,6 +51,16 @@ export const Header = ({ cartCount, onCartClick, currentPage = 'home' }: HeaderP
 
   const headerBgOpacity = currentPage === 'home' ? headerOpacity : 0.95;
   const headerBlur = currentPage === 'home' ? (headerOpacity > 0 ? 'backdrop-blur-xl' : '') : 'backdrop-blur-md';
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  const getInitials = (name: string | null | undefined) => {
+    if (!name) return 'U';
+    return name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
+  };
 
   return (
     <header 
@@ -136,6 +156,63 @@ export const Header = ({ cartCount, onCartClick, currentPage = 'home' }: HeaderP
               )}
             </Button>
 
+            {/* User Authentication */}
+            {!loading && (
+              <>
+                {user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="relative hover-scale text-amber-800 hover:text-rose-600 transition-all duration-300"
+                        style={{ 
+                          opacity: currentPage === 'home' ? Math.max(headerOpacity, 0.7) : 1 
+                        }}
+                      >
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-gradient-to-r from-rose-500 to-amber-500 text-white text-sm font-medium">
+                            {getInitials(user.user_metadata?.full_name)}
+                          </AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuItem className="flex flex-col items-start p-4">
+                        <div className="font-medium text-amber-900">
+                          {user.user_metadata?.full_name || 'User'}
+                        </div>
+                        <div className="text-sm text-amber-600/70">
+                          {user.email}
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        onClick={handleSignOut}
+                        className="text-rose-600 focus:text-rose-700 cursor-pointer"
+                      >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Sign Out
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="text-amber-800 hover:text-rose-600 hover:bg-rose-50 transition-all duration-300"
+                    style={{ 
+                      opacity: currentPage === 'home' ? Math.max(headerOpacity, 0.7) : 1 
+                    }}
+                    onClick={() => navigate('/auth')}
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Sign In
+                  </Button>
+                )}
+              </>
+            )}
+
             {/* Mobile Menu Toggle */}
             <Button
               variant="ghost"
@@ -177,6 +254,31 @@ export const Header = ({ cartCount, onCartClick, currentPage = 'home' }: HeaderP
                   {item.name}
                 </button>
               ))}
+              
+              {/* Mobile auth button */}
+              {!loading && !user && (
+                <button
+                  onClick={() => {
+                    navigate('/auth');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="text-left px-4 py-2 rounded-lg transition-colors duration-300 text-amber-800 hover:bg-amber-50 hover:text-rose-600"
+                >
+                  Sign In
+                </button>
+              )}
+              
+              {!loading && user && (
+                <button
+                  onClick={() => {
+                    handleSignOut();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="text-left px-4 py-2 rounded-lg transition-colors duration-300 text-rose-600 hover:bg-rose-50"
+                >
+                  Sign Out
+                </button>
+              )}
             </div>
           </nav>
         )}
