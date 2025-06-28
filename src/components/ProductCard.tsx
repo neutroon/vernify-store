@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Heart, ShoppingCart, Sparkles, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,16 +16,27 @@ interface ProductCardProps {
 
 export const ProductCard = ({ product, onAddToCart, onToggleFavorite, isFavorite }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate();
 
   // Generate random rating for demo purposes
   const rating = Math.floor(Math.random() * 2) + 4; // 4 or 5 stars
   const reviewCount = Math.floor(Math.random() * 200) + 50; // 50-250 reviews
 
+  const handleCardClick = () => {
+    navigate(`/product/${product.id}`);
+  };
+
+  const handleButtonClick = (e: React.MouseEvent, action: () => void) => {
+    e.stopPropagation();
+    action();
+  };
+
   return (
     <Card 
-      className="group overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-4 bg-white/95 backdrop-blur-md border-amber-100/50 hover:border-rose-200/50 hover:bg-white"
+      className="group overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-4 bg-white/95 backdrop-blur-md border-amber-100/50 hover:border-rose-200/50 hover:bg-white cursor-pointer"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handleCardClick}
     >
       <CardContent className="p-0">
         <div className="relative overflow-hidden">
@@ -57,7 +69,7 @@ export const ProductCard = ({ product, onAddToCart, onToggleFavorite, isFavorite
             className={`absolute top-4 right-4 bg-white/90 backdrop-blur-md hover:bg-white hover:scale-110 transition-all duration-300 shadow-lg ${
               isFavorite ? 'text-rose-500 bg-rose-50' : 'text-amber-600'
             }`}
-            onClick={onToggleFavorite}
+            onClick={(e) => handleButtonClick(e, onToggleFavorite)}
           >
             <Heart className={`h-4 w-4 transition-all duration-300 ${isFavorite ? 'fill-current scale-110' : ''}`} />
           </Button>
@@ -69,8 +81,9 @@ export const ProductCard = ({ product, onAddToCart, onToggleFavorite, isFavorite
             className={`absolute top-4 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-md hover:bg-white text-amber-800 hover:text-rose-600 transition-all duration-300 shadow-lg ${
               isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
             }`}
+            onClick={(e) => handleButtonClick(e, handleCardClick)}
           >
-            Quick View
+            View Details
           </Button>
 
           {/* Add to cart button - slides up on hover */}
@@ -78,7 +91,7 @@ export const ProductCard = ({ product, onAddToCart, onToggleFavorite, isFavorite
             isHovered ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
           }`}>
             <Button 
-              onClick={onAddToCart}
+              onClick={(e) => handleButtonClick(e, onAddToCart)}
               className="w-full bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white backdrop-blur-md shadow-lg hover:shadow-xl transition-all duration-300 font-medium group/btn"
             >
               <ShoppingCart className="h-4 w-4 mr-2 group-hover/btn:scale-110 transition-transform duration-300" />
