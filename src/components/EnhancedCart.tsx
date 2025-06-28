@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { X, Minus, Plus, Trash2, CreditCard, ShoppingBag, MapPin, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -185,10 +184,10 @@ export const EnhancedCart = ({
 
       if (orderError) throw orderError;
 
-      // Create order items
+      // Create order items using originalId (UUID) for product_id
       const orderItems = items.map(item => ({
         order_id: order.id,
-        product_id: item.id.toString(),
+        product_id: item.originalId || item.id.toString(), // Use originalId (UUID) for database operations
         quantity: item.quantity,
         unit_price: item.price
       }));
