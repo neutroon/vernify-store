@@ -1,7 +1,6 @@
-
-import { Heart, Mail, Phone, MapPin } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Heart, Mail, Phone, MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export const Footer = () => {
   return (
@@ -14,7 +13,8 @@ export const Footer = () => {
               Stay in the Scent
             </h3>
             <p className="text-white/80 mb-8 text-lg">
-              Subscribe to our newsletter and be the first to discover new fragrances, exclusive offers, and perfume stories.
+              Subscribe to our newsletter and be the first to discover new
+              fragrances, exclusive offers, and perfume stories.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               <Input
@@ -37,15 +37,20 @@ export const Footer = () => {
           <div className="space-y-6">
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-gradient-to-r from-rose-400 to-amber-400 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-xl">E</span>
+                <span className="text-white font-bold text-xl">V</span>
               </div>
               <div>
-                <span className="text-2xl font-playfair font-bold">Essence</span>
-                <div className="text-xs text-white/70 font-medium tracking-wide">BOUTIQUE</div>
+                <span className="text-2xl font-playfair font-bold">
+                  Vernify
+                </span>
+                <div className="text-xs text-white/70 font-medium tracking-wide">
+                  BOUTIQUE
+                </div>
               </div>
             </div>
             <p className="text-white/80 leading-relaxed">
-              Crafting exceptional fragrances that capture the essence of elegance and sophistication since 2020.
+              Crafting exceptional fragrances that capture the essence of
+              elegance and sophistication since 2020.
             </p>
             <div className="flex space-x-4">
               {/* Social Media Icons would go here */}
@@ -65,9 +70,19 @@ export const Footer = () => {
           <div className="space-y-6">
             <h4 className="text-xl font-playfair font-semibold">Quick Links</h4>
             <ul className="space-y-3">
-              {['About Us', 'Our Story', 'Fragrances', 'Collections', 'Gift Cards', 'Size Guide'].map((link) => (
+              {[
+                "About Us",
+                "Our Story",
+                "Fragrances",
+                "Collections",
+                "Gift Cards",
+                "Size Guide",
+              ].map((link) => (
                 <li key={link}>
-                  <a href="#" className="text-white/80 hover:text-white transition-colors duration-300 hover:underline">
+                  <a
+                    href="#"
+                    className="text-white/80 hover:text-white transition-colors duration-300 hover:underline"
+                  >
                     {link}
                   </a>
                 </li>
@@ -77,11 +92,23 @@ export const Footer = () => {
 
           {/* Customer Care */}
           <div className="space-y-6">
-            <h4 className="text-xl font-playfair font-semibold">Customer Care</h4>
+            <h4 className="text-xl font-playfair font-semibold">
+              Customer Care
+            </h4>
             <ul className="space-y-3">
-              {['Contact Us', 'Shipping Info', 'Returns & Exchanges', 'FAQ', 'Privacy Policy', 'Terms of Service'].map((link) => (
+              {[
+                "Contact Us",
+                "Shipping Info",
+                "Returns & Exchanges",
+                "FAQ",
+                "Privacy Policy",
+                "Terms of Service",
+              ].map((link) => (
                 <li key={link}>
-                  <a href="#" className="text-white/80 hover:text-white transition-colors duration-300 hover:underline">
+                  <a
+                    href="#"
+                    className="text-white/80 hover:text-white transition-colors duration-300 hover:underline"
+                  >
                     {link}
                   </a>
                 </li>
@@ -91,19 +118,25 @@ export const Footer = () => {
 
           {/* Contact Info */}
           <div className="space-y-6">
-            <h4 className="text-xl font-playfair font-semibold">Get in Touch</h4>
+            <h4 className="text-xl font-playfair font-semibold">
+              Get in Touch
+            </h4>
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-amber-300" />
-                <span className="text-white/80">hello@essenceboutique.com</span>
+                <span className="text-white/80">hello@vernify.com</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-amber-300" />
-                <span className="text-white/80">+1 (555) 123-4567</span>
+                <span className="text-white/80">+20 15101261243</span>
               </div>
               <div className="flex items-start space-x-3">
                 <MapPin className="h-5 w-5 text-amber-300 mt-1" />
-                <span className="text-white/80">123 Fragrance Avenue<br />New York, NY 10001</span>
+                <span className="text-white/80">
+                  123 Fragrance Avenue
+                  <br />
+                  New York, NY 10001
+                </span>
               </div>
             </div>
           </div>
@@ -115,7 +148,7 @@ export const Footer = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
             <p className="text-white/60 text-sm">
-              © 2024 Essence Boutique. All rights reserved.
+              © 2025 Vernify Boutique. All rights reserved.
             </p>
             <div className="flex items-center space-x-2 text-white/60 text-sm">
               <span>Made with</span>
